@@ -140,7 +140,7 @@ class AnalisadorLexico:
 
         # Vendo se o char lido é igual a maior ou maior ou igual
         elif char_lido == ">":
-S            new_char = self.ler_char_do_buffer()
+            new_char = self.ler_char_do_buffer()
             if new_char == "=":
                 return Token(TipoToken.OP_COMP_MAIOR_OU_IGUAL, ">=")
             else:
