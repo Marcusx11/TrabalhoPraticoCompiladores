@@ -6,18 +6,20 @@ from lexico import token
 from lexico import tipo_token, analisador_lexico
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-    a = token.Token(tipo_token.TipoToken.ID, "variavel1")
-    print(a.to_string())
 
-    lexico = analisador_lexico.AnalisadorLexico("programa")
-    lexico.ler_arquivo()
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    lexico = analisador_lexico.AnalisadorLexico("programa")
+    lexico.inicializa_buffer()
+
+
+    while True:
+        t = lexico.proximo_token()
+
+        if t:
+            print(t.to_string())
+
+            if t.tipo_token == tipo_token.TipoToken.FIM_DE_ARQUIVO:
+                break
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

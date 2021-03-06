@@ -67,4 +67,8 @@ class TipoToken(Enum):
     # Operador para imprimir o valor de uma expressão
     OP_IMPRIME_VALOR = 42
 
+    # Token indicando fim de arquivo
+    FIM_DE_ARQUIVO = 43
+
+    ERRO_LEXICO = 44
 

@@ -10,7 +10,7 @@ class AnalisadorLexico:
     def __init__(self, file_path):
         self.file_path = file_path
         self.token_list = list()
-        self.read_buffer = [""] * (TAM_BUFFER * 2)  # Buffer de tamanho 10
+        self.buffer_leitura = [""] * (TAM_BUFFER * 2)  # Buffer de tamanho 10
         self.pointer = 0
         # Variável de controle para evitar a reescrita do Buffer 2 vezes
         self.buffer_atual = 1
@@ -29,8 +29,27 @@ class AnalisadorLexico:
         except EOFError:
             print("Não foi possível ler o arquivo")
 
+
+    # Inicializa o Buffer da esquerda com os caracteres do programa de entrada
+    def inicializa_buffer(self):
+        self.buffer_atual = 2
+        self.inicio_lexema = 0
+        self.lexema = ""
+
+        self.recarregar_buffer_1()
+
+    # Lendo os caracteres do Buffer de entrada
+    def ler_char_do_buffer(self) -> str:
+        char_atual = self.buffer_leitura[self.pointer]
+
+        print(self.to_string())
+
+        self.incrementar_ponteiro()
+
+        return char_atual
+
     def ler_proximo_caractere(self) -> str:
-        c = self.f.read(1)
+        c = self.ler_char_do_buffer()
         self.lexema += c
         return c
 
@@ -41,9 +60,9 @@ class AnalisadorLexico:
             self.buffer_atual = 1
 
             try:
-                for i in range(TAM_BUFFER):
-                    self.read_buffer[i] = self.ler_proximo_caractere()
-                    if self.read_buffer[i] == "":  # Fim de arquivo
+                for i in range(0, TAM_BUFFER):
+                    self.buffer_leitura[i] = self.f.read(1)
+                    if self.buffer_leitura[i] == "":  # Fim de arquivo
                         break
 
             except FileNotFoundError:
@@ -61,8 +80,8 @@ class AnalisadorLexico:
 
             try:
                 for i in range(TAM_BUFFER, TAM_BUFFER * 2):
-                    self.read_buffer[i] = self.ler_proximo_caractere()
-                    if self.read_buffer[i] == "":  # Fim de arquivo
+                    self.buffer_leitura[i] = self.f.read(1)
+                    if self.buffer_leitura[i] == "":  # Fim de arquivo
                         break
 
             except FileNotFoundError:
@@ -91,21 +110,6 @@ class AnalisadorLexico:
         if self.pointer < 0:  # Cheguei no final do Buffer da esquerda
             self.pointer = TAM_BUFFER * 2 - 1  # Vai pro final do Buffer da direita
 
-    # Inicializa o Buffer da esquerda com os caracteres do programa de entrada
-    def inicializa_buffer(self):
-        self.buffer_atual = 2
-
-        self.recarregar_buffer_1()
-
-    # Lendo os caracteres do Buffer de entrada
-    def ler_char_do_buffer(self) -> str:
-        char_atual = self.read_buffer[self.pointer]
-
-        print(self.to_string())
-
-        self.incrementar_ponteiro()
-
-        return char_atual
 
     # Método para zerar o ponteiro de leitura toda vez que não foi possível reconhecer um padrão
     def zerar_ponteiro(self):
@@ -122,22 +126,91 @@ class AnalisadorLexico:
         return self.lexema
 
     # Vai fazer a leitura do arquivo texto de entrada até reconhecer um padrão e retornar este token
-    def proximo_token(self, char_lido: str) -> Token or None:
+    def proximo_token(self) -> Token or None or str:
 
-        # Ignorando espaços em brancos:
-        if char_lido == " " or char_lido == "\n" or char_lido == "\t":
-            return None
+        # Vai tentar reconhecer os padrões, se não conseguir, vai para próximo até achar um ou retornar nulo
+        token = None
 
+        self.pular_espacos_e_comentarios()
+        self.confirmar_lexema()
 
+        # Tentando achar o fim de arquivo
+        proximo = self.get_fim_do_arquivo()
 
-        # TODO Lembrar de tratar tokens que precisam ver mais de 1 token para ver seu resultado real
-        # Vendo se o char lido é igual a menor ou menor ou igual
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # Tentando achar uma palavra-chave
+        proximo = self.get_palavra_chave()
+
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # Tentando achar um identificador de variável
+        proximo = self.get_variavel_id()
+
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # Tentando achar uma constante numérica
+        proximo = self.get_token_numero()
+
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # TODO todos os padrões
+        # Tentando achar um delimitador
+        proximo = self.get_token_delimitador()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # Tentando achar um ponto e vírgula
+        proximo = self.get_token_ponto_e_virgula()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # Tentando achar parenteses
+        proximo = self.get_token_parenteses()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # Tentando achar chaves (bloco de programação)
+        proximo = self.get_token_chaves()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        print("Erro léxico!")
+        print(self.to_string())
 
         return None
 
     def to_string(self):
         ret = "Buffer:["
-        for i in self.read_buffer:
+        for i in self.buffer_leitura:
             if i == " " or i == "\n" or i == "\t":
                 ret += " "
             else:
@@ -157,28 +230,6 @@ class AnalisadorLexico:
                 ret += " "
 
         return ret
-
-    def ler_arquivo(self):
-        self.inicializa_buffer()
-
-        while True:
-            # Lendo caractére por caractére
-            caracter = self.ler_char_do_buffer()
-
-            print(caracter, end="")
-
-            # Fim de arquivo
-            if not caracter:
-                break
-
-            token = self.proximo_token(caracter)
-
-            if token:
-                self.token_list.append(token)
-
-        self.f.close()
-        for i in self.token_list:
-            print(i.to_string())
 
 
     ## --- MÉTODOS PARA RECONHECER PADRÕES DE TOKENS -- ##
@@ -206,7 +257,16 @@ class AnalisadorLexico:
         # TODO lembrar de fazer a lógica pra ver se é tipo de dado ou ternary-if
         # TODO fazer dos outros tokens delimitadores
         if char_lido == ":":
-            return Token(TipoToken.DELIM_TIPO_DAD, ":")
+            return Token(TipoToken.DELIM_TIPO_DADO, ":")
+        else:
+            return None
+
+    def get_token_ponto_e_virgula(self) -> Token or None:
+
+        char_lido = self.ler_proximo_caractere()
+
+        if char_lido == ";":
+            return Token(TipoToken.DELIM_PONTO_E_VIRGULA, ";")
         else:
             return None
 
@@ -255,6 +315,16 @@ class AnalisadorLexico:
             return Token(TipoToken.DELIM_ABRE_PARENTESES, "(")
         elif char_lido == ")":
             return Token(TipoToken.DELIM_FECHA_PARENTESES, ")")
+        else:
+            return None
+
+    def get_token_chaves(self) -> Token or None:
+        char_lido = self.ler_proximo_caractere()
+
+        if char_lido == "{":
+            return Token(TipoToken.DELIM_ABRE_CHAVES, "{")
+        elif char_lido == "}":
+            return Token(TipoToken.DELIM_FECHA_CHAVES, "}")
         else:
             return None
 
@@ -318,7 +388,7 @@ class AnalisadorLexico:
 
                 else:
                     self.retroceder_ponteiro()
-                    return None
+                    break
 
             elif estado == 2:
                 if c == "#":
@@ -326,8 +396,53 @@ class AnalisadorLexico:
 
                 elif not c.isspace() or c == ' ':
                     self.retroceder_ponteiro()
-                    return None
+                    break
 
             elif estado == 3:
                 if c == "\n":
+                    break
+
+    def get_palavra_chave(self) -> Token or None:
+
+        while True:
+            # Lendo os caracteres até parecer algo que não seja letra
+            c = self.ler_proximo_caractere()
+            if not c.isalpha():
+                self.retroceder_ponteiro()
+                lexema = self.get_lexema()
+
+                if lexema == "as":
+                    return Token(TipoToken.PAL_CHAVE_AS, lexema)
+                elif lexema == "else":
+                    return Token(TipoToken.PAL_CHAVE_ELSE, lexema)
+                elif lexema == "function":
+                    return Token(TipoToken.PAL_CHAVE_FUNCTION, lexema)
+                elif lexema == "if":
+                    return Token(TipoToken.PAL_CHAVE_IF, lexema)
+                elif lexema == "new":
+                    return Token(TipoToken.PAL_CHAVE_NEW, lexema)
+                elif lexema == "return":
+                    return Token(TipoToken.PAL_CHAVE_RETURN, lexema)
+                elif lexema == "type":
+                    return Token(TipoToken.PAL_CHAVE_TYPE, lexema)
+                elif lexema == "var":
+                    return Token(TipoToken.PAL_CHAVE_VAR, lexema)
+                elif lexema == "while":
+                    return Token(TipoToken.PAL_CHAVE_WHILE, lexema)
+                elif lexema == "int":
+                    return Token(TipoToken.PAL_CHAVE_TIPO_INT, lexema)
+                elif lexema == "float":
+                    return Token(TipoToken.PAL_CHAVE_TIPO_FLOAT, lexema)
+                elif lexema == "record":
+                    return Token(TipoToken.PAL_CHAVE_TIPO_RECORD, lexema)
+                else:
                     return None
+
+
+    def get_fim_do_arquivo(self) -> Token or None:
+        c = self.ler_proximo_caractere()
+
+        if c == "":
+            return Token(TipoToken.FIM_DE_ARQUIVO, "$")
+
+        return None
