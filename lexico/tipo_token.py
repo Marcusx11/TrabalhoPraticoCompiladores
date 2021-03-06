@@ -54,7 +54,7 @@ class TipoToken(Enum):
     OP_COND_TERNARIO_FALSE = 41
 
     # Classes de Tokens para identificadores
-    ID = 36
+    VAR_ID = 36
 
     # Classes de Tokens para constantes
     NUM_INT_CONST = 37

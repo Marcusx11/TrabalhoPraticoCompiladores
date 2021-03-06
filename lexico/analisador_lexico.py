@@ -128,39 +128,7 @@ class AnalisadorLexico:
         if char_lido == " " or char_lido == "\n" or char_lido == "\t":
             return None
 
-        # Tokens de 1 caracter
-        if char_lido == "(":
-            return Token(TipoToken.DELIM_ABRE_PARENTESES, "(")
-        elif char_lido == ")":
-            return Token(TipoToken.DELIM_FECHA_PARENTESES, ")")
-        elif char_lido == "*":
-            return Token(TipoToken.OP_ARIT_MULTIPLICACAO, "*")
-        elif char_lido == "+":
-            return Token(TipoToken.OP_ARIT_SOMA, "+")
-        elif char_lido == "/":
-            return Token(TipoToken.OP_ARIT_DIVISAO, "/")
-        elif char_lido == "-":
-            return Token(TipoToken.OP_ARIT_SUBTRACAO, "-")
-        elif char_lido == "?":
-            return Token(TipoToken.OP_COND_TERNARIO_TRUE, "?")
-        elif char_lido == ";":
-            return Token(TipoToken.DELIM_PONTO_E_VIRGULA, ";")
-        elif char_lido == "{":
-            return Token(TipoToken.DELIM_ABRE_CHAVES, "{")
-        elif char_lido == "}":
-            return Token(TipoToken.DELIM_FECHA_CHAVES, "}")
-        elif char_lido == "[":
-            return Token(TipoToken.ARRAY_ABRE_COLCHETES, "[")
-        elif char_lido == "]":
-            return Token(TipoToken.ARRAY_FECHA_COLCHETES, "]")
-        elif char_lido == "!":
-            return Token(TipoToken.OP_BOOL_NOT, "!")
-        elif char_lido == ",":
-            return Token(TipoToken.DELIM_VIRGULA, ",")
-        elif char_lido == "@":
-            return Token(TipoToken.OP_IMPRIME_VALOR, "@")
-        elif char_lido == ".":
-            return Token(TipoToken.DELIM_PONTO, ".")
+
 
         # TODO Lembrar de tratar tokens que precisam ver mais de 1 token para ver seu resultado real
         # Vendo se o char lido é igual a menor ou menor ou igual
@@ -278,3 +246,88 @@ class AnalisadorLexico:
 
         else:
             return None
+
+
+    def get_token_parenteses(self) -> Token or None:
+        char_lido = self.ler_proximo_caractere()
+
+        if char_lido == "(":
+            return Token(TipoToken.DELIM_ABRE_PARENTESES, "(")
+        elif char_lido == ")":
+            return Token(TipoToken.DELIM_FECHA_PARENTESES, ")")
+        else:
+            return None
+
+
+    def get_token_numero(self) -> Token or None:
+        estado = 1
+
+        while True:
+            c = self.ler_proximo_caractere()
+            if estado == 1:
+                if c.isdigit():
+                    estado = 2
+                else:
+                    return None
+
+            elif estado == 2:
+                if c == ".":
+                    c = self.ler_proximo_caractere()
+                    if c.isdigit():
+                        estado = 3
+                    else:
+                        return None
+                elif not c.isdigit():
+                    self.retroceder_ponteiro()
+                    return Token(TipoToken.NUM_INT_CONST, self.get_lexema())
+
+            elif estado == 3:
+                if not c.isdigit():
+                    self.retroceder_ponteiro()
+                    return Token(TipoToken.NUM_FLAOT_CONST, self.get_lexema())
+
+
+    def get_variavel_id(self) -> Token or None:
+        # TODO se necessário, implementar a tipagem da variável
+        # Lembrar que em Monga, as variáveis válidas tem até 32 caracteres
+        estado = 1
+        while True:
+            c = self.ler_proximo_caractere()
+            if estado == 1:
+                if c.isalpha():
+                    estado = 2
+                else:
+                    return None
+
+            elif estado == 2:
+                if not c.isalnum():
+                    self.retroceder_ponteiro()
+                    return Token(TipoToken.VAR_ID, self.get_lexema())
+
+
+    def pular_espacos_e_comentarios(self) -> None:
+        estado = 1
+        while True:
+            c = self.ler_proximo_caractere()
+            if estado == 1:
+                if c.isspace() or c == ' ':
+                    estado = 2
+
+                elif c == "#":
+                    estado = 3
+
+                else:
+                    self.retroceder_ponteiro()
+                    return None
+
+            elif estado == 2:
+                if c == "#":
+                    estado = 3
+
+                elif not c.isspace() or c == ' ':
+                    self.retroceder_ponteiro()
+                    return None
+
+            elif estado == 3:
+                if c == "\n":
+                    return None
