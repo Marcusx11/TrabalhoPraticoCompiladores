@@ -42,7 +42,7 @@ class AnalisadorLexico:
     def ler_char_do_buffer(self) -> str:
         char_atual = self.buffer_leitura[self.pointer]
 
-        print(self.to_string())
+        # print(self.to_string())
 
         self.incrementar_ponteiro()
 
@@ -118,6 +118,7 @@ class AnalisadorLexico:
 
     # Confirma um lexema que foi devidamente reconhecido
     def confirmar_lexema(self):
+        print(self.lexema)
         self.inicio_lexema = self.pointer
         self.lexema = ""
 
@@ -127,9 +128,6 @@ class AnalisadorLexico:
 
     # Vai fazer a leitura do arquivo texto de entrada até reconhecer um padrão e retornar este token
     def proximo_token(self) -> Token or None or str:
-
-        # Vai tentar reconhecer os padrões, se não conseguir, vai para próximo até achar um ou retornar nulo
-        token = None
 
         self.pular_espacos_e_comentarios()
         self.confirmar_lexema()
@@ -203,8 +201,24 @@ class AnalisadorLexico:
             self.confirmar_lexema()
             return proximo
 
+        # Tentando achar um operador de comparação ou o "=" de atribuição
+        proximo = self.get_token_operador_comparacao()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # Tentando achar um operador aritmético
+        proximo = self.get_token_operador_aritmetico()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
         print("Erro léxico!")
-        print(self.to_string())
+        # print(self.to_string())
 
         return None
 
@@ -240,13 +254,13 @@ class AnalisadorLexico:
         char_lido = self.ler_proximo_caractere()
 
         if char_lido == "*":
-            return Token(TipoToken.OP_ARIT_MULTIPLICACAO, "*")
+            return Token(TipoToken.OP_ARIT_MULTIPLICACAO, self.get_lexema())
         elif char_lido == "+":
-            return Token(TipoToken.OP_ARIT_SOMA, "+")
+            return Token(TipoToken.OP_ARIT_SOMA, self.get_lexema())
         elif char_lido == "/":
-            return Token(TipoToken.OP_ARIT_DIVISAO, "/")
+            return Token(TipoToken.OP_ARIT_DIVISAO, self.get_lexema())
         elif char_lido == "-":
-            return Token(TipoToken.OP_ARIT_SUBTRACAO, "-")
+            return Token(TipoToken.OP_ARIT_SUBTRACAO, self.get_lexema())
         else:
             return None
 
@@ -257,7 +271,7 @@ class AnalisadorLexico:
         # TODO lembrar de fazer a lógica pra ver se é tipo de dado ou ternary-if
         # TODO fazer dos outros tokens delimitadores
         if char_lido == ":":
-            return Token(TipoToken.DELIM_TIPO_DADO, ":")
+            return Token(TipoToken.DELIM_DOIS_PONTOS, self.get_lexema())
         else:
             return None
 
@@ -266,7 +280,7 @@ class AnalisadorLexico:
         char_lido = self.ler_proximo_caractere()
 
         if char_lido == ";":
-            return Token(TipoToken.DELIM_PONTO_E_VIRGULA, ";")
+            return Token(TipoToken.DELIM_PONTO_E_VIRGULA, self.get_lexema())
         else:
             return None
 
@@ -275,34 +289,35 @@ class AnalisadorLexico:
         char_lido = self.ler_proximo_caractere()
 
         if char_lido == "<":
-            new_char = self.ler_char_do_buffer()
-            if new_char == "=":
-                return Token(TipoToken.OP_COMP_MENOR_OU_IGUAL, "<=")
+            char_lido = self.ler_proximo_caractere()
+            if char_lido == "=":
+                return Token(TipoToken.OP_COMP_MENOR_OU_IGUAL, self.get_lexema())
             else:
                 self.retroceder_ponteiro()
-                return Token(TipoToken.OP_MENOR, "<")
+                return Token(TipoToken.OP_MENOR, self.get_lexema())
 
         # Vendo se o char lido é igual ao de diferença entre expressões
         elif char_lido == "~":
-            new_char = self.ler_char_do_buffer()
-            if new_char == "=":
-                return Token(TipoToken.OP_COMP_DIF, "~=")
+            char_lido = self.ler_proximo_caractere()
+            if char_lido == "=":
+                return Token(TipoToken.OP_COMP_DIF, self.get_lexema())
 
         # Vendo se o char lido é igual a maior ou maior ou igual
         elif char_lido == ">":
-            new_char = self.ler_char_do_buffer()
-            if new_char == "=":
-                return Token(TipoToken.OP_COMP_MAIOR_OU_IGUAL, ">=")
+            char_lido = self.ler_proximo_caractere()
+            if char_lido == "=":
+                return Token(TipoToken.OP_COMP_MAIOR_OU_IGUAL, self.get_lexema())
             else:
                 self.retroceder_ponteiro()
-                return Token(TipoToken.OP_MAIOR, ">")
+                return Token(TipoToken.OP_MAIOR, self.get_lexema())
 
         elif char_lido == "=":
-            new_char = self.ler_char_do_buffer()
-            if new_char == "=":
-                return Token(TipoToken.OP_COMP_IGUAL, "==")
+            char_lido = self.ler_proximo_caractere()
+            if char_lido == "=":
+                return Token(TipoToken.OP_COMP_IGUAL, self.get_lexema())
             else:
-                return None
+                self.retroceder_ponteiro()
+                return Token(TipoToken.DELIM_ATRIBUICAO, self.get_lexema())
 
         else:
             return None
@@ -312,9 +327,9 @@ class AnalisadorLexico:
         char_lido = self.ler_proximo_caractere()
 
         if char_lido == "(":
-            return Token(TipoToken.DELIM_ABRE_PARENTESES, "(")
+            return Token(TipoToken.DELIM_ABRE_PARENTESES, self.get_lexema())
         elif char_lido == ")":
-            return Token(TipoToken.DELIM_FECHA_PARENTESES, ")")
+            return Token(TipoToken.DELIM_FECHA_PARENTESES, self.get_lexema())
         else:
             return None
 
@@ -322,9 +337,9 @@ class AnalisadorLexico:
         char_lido = self.ler_proximo_caractere()
 
         if char_lido == "{":
-            return Token(TipoToken.DELIM_ABRE_CHAVES, "{")
+            return Token(TipoToken.DELIM_ABRE_CHAVES, self.get_lexema())
         elif char_lido == "}":
-            return Token(TipoToken.DELIM_FECHA_CHAVES, "}")
+            return Token(TipoToken.DELIM_FECHA_CHAVES, self.get_lexema())
         else:
             return None
 
@@ -372,7 +387,7 @@ class AnalisadorLexico:
             elif estado == 2:
                 if not c.isalnum():
                     self.retroceder_ponteiro()
-                    return Token(TipoToken.VAR_ID, self.get_lexema())
+                    return Token(TipoToken.ID, self.get_lexema())
 
 
     def pular_espacos_e_comentarios(self) -> None:

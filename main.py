@@ -4,6 +4,8 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 from lexico import token
 from lexico import tipo_token, analisador_lexico
+from antlr4 import *
+import sys
 
 
 

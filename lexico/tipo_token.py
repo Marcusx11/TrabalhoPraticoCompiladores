@@ -28,7 +28,7 @@ class TipoToken(Enum):
     OP_BOOL_NOT = 16
 
     # Classes de Tokens para delimitadores
-    DELIM_TIPO_DADO = 17
+    DELIM_DOIS_PONTOS = 17
     DELIM_ABRE_PARENTESES = 18
     DELIM_FECHA_PARENTESES = 19
     DELIM_ABRE_CHAVES = 20
@@ -54,7 +54,7 @@ class TipoToken(Enum):
     OP_COND_TERNARIO_FALSE = 41
 
     # Classes de Tokens para identificadores
-    VAR_ID = 36
+    ID = 36
 
     # Classes de Tokens para constantes
     NUM_INT_CONST = 37
