@@ -5,6 +5,9 @@ from enum import Enum
 # Referencia da construção desta classe: https://www.youtube.com/watch?v=36MOhcBz7p0&t=2312s
 
 class TipoToken(Enum):
+    def __str__(self):
+        return str(self.name)
+
     # Classes de Tokens para as palavras-chave da linguagem
     PAL_CHAVE_AS = 1
     PAL_CHAVE_ELSE = 2
@@ -58,7 +61,7 @@ class TipoToken(Enum):
 
     # Classes de Tokens para constantes
     NUM_INT_CONST = 37
-    NUM_FLAOT_CONST = 38
+    NUM_FLOAT_CONST = 38
 
     # Classes de Tokens para Arrays
     ARRAY_ABRE_COLCHETES = 39

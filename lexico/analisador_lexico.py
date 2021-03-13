@@ -245,8 +245,11 @@ class AnalisadorLexico:
 
         return ret
 
-
+    ##########################################################################
+    #
     ## --- MÉTODOS PARA RECONHECER PADRÕES DE TOKENS -- ##
+    #
+    ##########################################################################
 
 
     def get_token_operador_aritmetico(self) -> Token or None:
@@ -369,7 +372,7 @@ class AnalisadorLexico:
             elif estado == 3:
                 if not c.isdigit():
                     self.retroceder_ponteiro()
-                    return Token(TipoToken.NUM_FLAOT_CONST, self.get_lexema())
+                    return Token(TipoToken.NUM_FLOAT_CONST, self.get_lexema())
 
 
     def get_variavel_id(self) -> Token or None:
@@ -409,7 +412,7 @@ class AnalisadorLexico:
                 if c == "#":
                     estado = 3
 
-                elif not c.isspace() or c == ' ':
+                elif not(c.isspace() or c == ' '):
                     self.retroceder_ponteiro()
                     break
 

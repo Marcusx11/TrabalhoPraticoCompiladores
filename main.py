@@ -4,8 +4,7 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 from lexico import token
 from lexico import tipo_token, analisador_lexico
-from antlr4 import *
-import sys
+from sintatico import parser
 
 
 
@@ -13,6 +12,9 @@ if __name__ == '__main__':
     lexico = analisador_lexico.AnalisadorLexico("programa")
     lexico.inicializa_buffer()
 
+    par = parser.Parser(lexico)
+
+    # par.program()
 
     while True:
         t = lexico.proximo_token()
