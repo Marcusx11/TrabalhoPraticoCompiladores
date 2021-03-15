@@ -73,5 +73,3 @@ class TipoToken(Enum):
     # Token indicando fim de arquivo
     FIM_DE_ARQUIVO = 43
 
-    ERRO_LEXICO = 44
-
