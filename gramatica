@@ -4,7 +4,7 @@ definition : def-variable | def-function | def-type
 
 def-variable : VAR ID ':' type ';'
 
-type : 'int' | 'float'
+type : ID
 
 def-type : TYPE ID '=' typedesc ;
 

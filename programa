@@ -1,9 +1,15 @@
 
-
-main(): int {
+# AAAA
+function main(): int {
     a1: int;
     b2: float;
 
     c3: float;
+
+    c3 = 1 == 2 ? 20 : 10;
+    @ a1;
+    a1 = [a1, b2, c3];
+    a2.megaman();
+
     return 1;
 }

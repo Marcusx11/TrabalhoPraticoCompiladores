@@ -151,7 +151,7 @@ class AnalisadorLexico:
             return proximo
 
         # Tentando achar um identificador de variável
-        proximo = self.get_variavel_id()
+        proximo = self.get_id()
 
         if proximo is None:
             self.zerar_ponteiro()
@@ -201,6 +201,14 @@ class AnalisadorLexico:
             self.confirmar_lexema()
             return proximo
 
+        # Tentando achar colchetes (array)
+        proximo = self.get_token_colchetes()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
         # Tentando achar um operador de comparação ou o "=" de atribuição
         proximo = self.get_token_operador_comparacao()
         if proximo is None:
@@ -216,6 +224,39 @@ class AnalisadorLexico:
         else:
             self.confirmar_lexema()
             return proximo
+
+        # Tentando achar de if ternário
+        proximo = self.get_token_condicao_ternaria()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # Tentando encontrar um operador para imprimir um valor
+        proximo = self.get_token_imprime()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # Tentando encontrar um token de vírgula
+        proximo = self.get_token_virgula()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
+        # Tentando encontrar um token de ponto
+        proximo = self.get_token_ponto()
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
+            return proximo
+
 
         print("Erro léxico!")
         # print(self.to_string())
@@ -271,7 +312,6 @@ class AnalisadorLexico:
 
         char_lido = self.ler_proximo_caractere()
 
-        # TODO lembrar de fazer a lógica pra ver se é tipo de dado ou ternary-if
         # TODO fazer dos outros tokens delimitadores
         if char_lido == ":":
             return Token(TipoToken.DELIM_DOIS_PONTOS, self.get_lexema())
@@ -286,6 +326,44 @@ class AnalisadorLexico:
             return Token(TipoToken.DELIM_PONTO_E_VIRGULA, self.get_lexema())
         else:
             return None
+
+    def get_token_condicao_ternaria(self) -> Token or None:
+
+        char_lido = self.ler_proximo_caractere()
+
+        if char_lido == "?":
+            return Token(TipoToken.OP_COND_TERNARIO_TRUE, self.get_lexema())
+        else:
+            return None
+
+
+    def get_token_imprime(self) -> Token or None:
+
+        char_lido = self.ler_proximo_caractere()
+
+        if char_lido == "@":
+            return Token(TipoToken.DELIM_ATRIBUICAO, self.get_lexema())
+        else:
+            return None
+
+    def get_token_virgula(self) -> Token or None:
+
+        char_lido = self.ler_proximo_caractere()
+
+        if char_lido == ",":
+            return Token(TipoToken.DELIM_VIRGULA, self.get_lexema())
+        else:
+            return None
+
+    def get_token_ponto(self) -> Token or None:
+
+        char_lido = self.ler_proximo_caractere()
+
+        if char_lido == ".":
+            return Token(TipoToken.DELIM_PONTO, self.get_lexema())
+        else:
+            return None
+
 
     def get_token_operador_comparacao(self) -> Token or None:
 
@@ -346,6 +424,16 @@ class AnalisadorLexico:
         else:
             return None
 
+    def get_token_colchetes(self) -> Token or None:
+        char_lido = self.ler_proximo_caractere()
+
+        if char_lido == "[":
+            return Token(TipoToken.ARRAY_ABRE_COLCHETES, self.get_lexema())
+        elif char_lido == "]":
+            return Token(TipoToken.ARRAY_FECHA_COLCHETES, self.get_lexema())
+        else:
+            return None
+
 
     def get_token_numero(self) -> Token or None:
         estado = 1
@@ -375,7 +463,7 @@ class AnalisadorLexico:
                     return Token(TipoToken.NUM_FLOAT_CONST, self.get_lexema())
 
 
-    def get_variavel_id(self) -> Token or None:
+    def get_id(self) -> Token or None:
         # TODO se necessário, implementar a tipagem da variável
         # Lembrar que em Monga, as variáveis válidas tem até 32 caracteres
         estado = 1
@@ -388,7 +476,7 @@ class AnalisadorLexico:
                     return None
 
             elif estado == 2:
-                if not c.isalnum():
+                if not c.isalnum() and len(self.lexema) <= 32:
                     self.retroceder_ponteiro()
                     return Token(TipoToken.ID, self.get_lexema())
 
