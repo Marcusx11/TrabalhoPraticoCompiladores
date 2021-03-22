@@ -1,7 +1,7 @@
 
 # AAAA
 function main(): int {
-    a1: int;
+    var1: int;
     b2: float;
 
     c3: float;
@@ -10,6 +10,7 @@ function main(): int {
     @ a1;
     a1 = [a1, b2, c3];
     a2.megaman();
+    if (aaa = aaa) {}
 
     return 1;
 }

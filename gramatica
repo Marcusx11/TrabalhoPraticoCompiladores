@@ -1,4 +1,4 @@
-program : definition program | vazio
+program : definition program | EOF
 
 definition : def-variable | def-function | def-type
 
@@ -44,29 +44,35 @@ return-exp : exp | vazio
 
 var : ID | exp '[' exp ']' | exp '.' ID
 
-exp : exp exp2
-    | NUMERAL
+exp : NUMERAL
     | var
     | '(' exp ')'
     | call
-    | NEW type new2
+    | exp AS type
+    | NEW type exp-new
     | '-' exp
+    | exp '+' exp
+    | exp '-' exp
+    | exp '*' exp
+    | exp '/' exp
     | cond '?' exp ':' exp
 
-exp2 : AS type | '+' exp | '-' exp | '*' exp | '/' exp
+exp-new = '[' exp ']' | vazio
 
-new2 : '[' exp ']' | vazio
+cond :  '(' cond ')'
+	| exp '==' exp
+	| exp '~=' exp
+	| exp '<=' exp
+	| exp '>=' exp
+	| exp '<' exp
+	| exp '>' exp
+	| '!' cond
+	| cond '&&' cond
+	| cond '||' cond
 
-cond : '!' cond cond-rec | '(' cond ')' cond-rec | exp exp-esq cond-rec
 
-cond-rec : cond2 cond-rec | vazio
+call : ID '(' explist
 
-cond2 : '&&' cond | '||' cond
-
-exp-esq : '==' exp | '~=' exp | '<=' exp | '>=' exp | '<' exp | '>' exp
-
-call : ID '(' explist ')'
-
-explist : exp explist2 | vazio
+explist : exp explist2 | ')'
 
 explist2 : ',' exp explist2 | vazio

@@ -77,27 +77,29 @@ class Parser:
         if self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
             self.__definition()
             self.program()
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.FIM_DE_ARQUIVO:
             self.match(tipo_token.TipoToken.FIM_DE_ARQUIVO)
         else:
             tokens = list()
-            tokens.append("IDENTIFICADOR")
+            tokens.append("ID")
+            tokens.append("EOF")
             self.erro_sintatico(tokens)
 
     def __definition(self):
         # Caso de uma definição de variável
-        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
+        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_VAR:
             self.__def_variable()
         # Caso de uma definição de função
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_FUNCTION:
             self.__def_function()
         # Caso de uma definição de tipo de dado
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_TYPE:
             self.__def_type()
         else:
             tokens = list()
-            tokens.append("VAR_ID")
-            tokens.append("FUNC_ID")
-            tokens.append("TYPE_ID")
+            tokens.append("PAL_CHAVE_VAR")
+            tokens.append("PAL_CHAVE_FUNCTION")
+            tokens.append("PAL_CHAVE_TYPE")
             self.erro_sintatico(tokens)
 
     def __def_variable(self):

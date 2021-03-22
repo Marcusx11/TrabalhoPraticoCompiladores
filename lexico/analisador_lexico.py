@@ -168,7 +168,6 @@ class AnalisadorLexico:
             self.confirmar_lexema()
             return proximo
 
-        # TODO todos os padrões
         # Tentando achar um delimitador
         proximo = self.get_token_delimitador()
         if proximo is None:
@@ -259,9 +258,9 @@ class AnalisadorLexico:
 
 
         print("Erro léxico!")
-        # print(self.to_string())
 
-        return None
+
+        return Token(TipoToken.TOKEN_INV, "")
 
     def to_string(self):
         ret = "Buffer:["
