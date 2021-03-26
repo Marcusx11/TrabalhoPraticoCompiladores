@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
     par = parser.Parser(lexico)
 
-    # par.program()
+    par.program()
 
     while True:
         t = lexico.proximo_token()

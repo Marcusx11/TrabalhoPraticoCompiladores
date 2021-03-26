@@ -74,7 +74,9 @@ class Parser:
     ################################################################################
 
     def program(self):
-        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
+        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_VAR or\
+                self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_FUNCTION or\
+                self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_TYPE:
             self.__definition()
             self.program()
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.FIM_DE_ARQUIVO:
@@ -103,30 +105,35 @@ class Parser:
             self.erro_sintatico(tokens)
 
     def __def_variable(self):
+        self.match(tipo_token.TipoToken.PAL_CHAVE_VAR)
         self.match(tipo_token.TipoToken.ID)
         self.match(tipo_token.TipoToken.DELIM_DOIS_PONTOS)
         self.__type()
         self.match(tipo_token.TipoToken.DELIM_PONTO_E_VIRGULA)
 
     def __type(self):
-        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_TIPO_INT:
+        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
+            self.match(tipo_token.TipoToken.ID)
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_TIPO_INT:
             self.match(tipo_token.TipoToken.PAL_CHAVE_TIPO_INT)
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_TIPO_FLOAT:
             self.match(tipo_token.TipoToken.PAL_CHAVE_TIPO_FLOAT)
         else:
             tokens = list()
+            tokens.append("ID")
             tokens.append("PAL_CHAVE_TIPO_INT")
             tokens.append("PAL_CHAVE_TIPO_FLOAT")
 
             self.erro_sintatico(tokens)
 
     def __def_type(self):
+        self.match(tipo_token.TipoToken.PAL_CHAVE_TYPE)
         self.match(tipo_token.TipoToken.ID)
         self.match(tipo_token.TipoToken.DELIM_ATRIBUICAO)
         self.__typedesc()
+        self.match(tipo_token.TipoToken.DELIM_PONTO_E_VIRGULA)
 
     def __typedesc(self):
-        # Identificador do Array
         if self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
             self.match(tipo_token.TipoToken.ID)
         # Caso de um array
@@ -142,9 +149,9 @@ class Parser:
             self.match(tipo_token.TipoToken.DELIM_FECHA_CHAVES)
         else:
             tokens = list()
-            tokens.append("ARRAY_ID")
-            tokens.append("ABRE_COLCHETES")
-            tokens.append("ABRE_CHAVES")
+            tokens.append("ID")
+            tokens.append("TOKEN_COLCHETES")
+            tokens.append("TOKEN_CHAVES")
             self.erro_sintatico(tokens)
 
     def __field2(self):
@@ -152,9 +159,11 @@ class Parser:
             self.__field()
             self.__field2()
         else:
-            tokens = list()
+            """tokens = list()
             tokens.append("CAMPOS_RECORD")
-            self.erro_sintatico(tokens)
+            self.erro_sintatico(tokens)"""
+            # VAZIO
+            pass
 
     def __field(self):
         self.match(tipo_token.TipoToken.ID)
@@ -163,10 +172,11 @@ class Parser:
         self.match(tipo_token.TipoToken.DELIM_PONTO_E_VIRGULA)
 
     def __def_function(self):
+        self.match(tipo_token.TipoToken.PAL_CHAVE_FUNCTION)
         self.match(tipo_token.TipoToken.ID)
         self.match(tipo_token.TipoToken.DELIM_ABRE_PARENTESES)
         self.__parameters()
-        self.match(tipo_token.TipoToken.DELIM_FECHA_PARENTESES)
+        # self.match(tipo_token.TipoToken.DELIM_FECHA_PARENTESES)
         self.__type2()
         self.__block()
 
@@ -175,17 +185,24 @@ class Parser:
             self.match(tipo_token.TipoToken.DELIM_DOIS_PONTOS)
             self.__type()
         else:
-            tokens = list()
+            """tokens = list()
             tokens.append("TOKEN DOIS PONTOS")
-            self.erro_sintatico(tokens)
+            self.erro_sintatico(tokens)"""
+            # VAZIO
+            pass
 
     def __parameters(self):
         if self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
             self.__parameters()
             self.__parameters2()
+            self.match(tipo_token.TipoToken.DELIM_FECHA_PARENTESES)
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_FECHA_PARENTESES:
+            self.match(tipo_token.TipoToken.DELIM_FECHA_PARENTESES)
+
         else:
             tokens = list()
-            tokens.append("ID DOS PARÂMETROS")
+            tokens.append("ID")
+            tokens.append("DELIM_FECHA_PARENTESES")
             self.erro_sintatico(tokens)
 
     def __parameters2(self):
@@ -194,9 +211,11 @@ class Parser:
             self.__parameter()
             self.__parameters2()
         else:
-            tokens = list()
-            tokens.append("TOKENS DOS PARAMETROS DA FUNÇÃO")
-            self.erro_sintatico(tokens)
+            """tokens = list()
+            tokens.append("DELIM_VIRGULA")
+            self.erro_sintatico(tokens)"""
+            # VAZIO
+            pass
 
     def __parameter(self):
         self.match(tipo_token.TipoToken.ID)
@@ -212,13 +231,15 @@ class Parser:
         self.match(tipo_token.TipoToken.DELIM_FECHA_CHAVES)
 
     def __def_variable2(self):
-        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
+        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_VAR:
             self.__def_variable()
             self.__def_variable2()
         else:
-            tokens = list()
+            """tokens = list()
             tokens.append("TOKENS DAS VARIÁVEIS DO BLOCO DE FUNÇÃO")
-            self.erro_sintatico(tokens)
+            self.erro_sintatico(tokens)"""
+            # VAZIO
+            pass
 
     def __statement2(self):
         if self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_IF or \
@@ -231,9 +252,16 @@ class Parser:
             self.__statement()
             self.__statement2()
         else:
-            tokens = list()
-            tokens.append("TOKENS DE STATEMENT: INSTRUÇÕES DA LINGUAGEM")
-            self.erro_sintatico(tokens)
+            """tokens = list()
+            tokens.append("PAL_CHAVE_IF")
+            tokens.append("PAL_CHAVE_WHILE")
+            tokens.append("ID")
+            tokens.append("PAL_CHAVE_RETURN")
+            tokens.append("OP_IMPRIME_VALOR")
+            tokens.append("DELIM_ABRE_CHAVES")
+            self.erro_sintatico(tokens)"""
+            # VAZIO
+            pass
 
     def __statement(self):
         if self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_IF:
@@ -254,7 +282,6 @@ class Parser:
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_RETURN:
             self.match(tipo_token.TipoToken.PAL_CHAVE_RETURN)
             self.__return_exp()
-            self.match(tipo_token.TipoToken.DELIM_PONTO_E_VIRGULA)
 
         # Nome para chamar função
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
@@ -279,9 +306,11 @@ class Parser:
             self.match(tipo_token.TipoToken.PAL_CHAVE_ELSE)
             self.__block()
         else:
-            tokens = list()
-            tokens.append("TOKEN ELSE")
-            self.erro_sintatico(tokens)
+            """tokens = list()
+            tokens.append("PAL_CHAVE_ELSE")
+            self.erro_sintatico(tokens)"""
+            # VAZIO
+            pass
 
     def __return_exp(self):
         if self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST or \
@@ -293,6 +322,9 @@ class Parser:
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
             self.__exp()
+            self.match(tipo_token.TipoToken.DELIM_PONTO_E_VIRGULA)
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_PONTO_E_VIRGULA:
+            self.match(tipo_token.TipoToken.DELIM_PONTO_E_VIRGULA)
         else:
             tokens = list()
             tokens.append("TOKENS POSSIVEIS COMO RETORNO DE MÉTODOS")
@@ -334,134 +366,96 @@ class Parser:
             self.erro_sintatico(tokens)
 
     def __exp(self):
-        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST:
-            self.match(tipo_token.TipoToken.NUM_INT_CONST)
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST:
-            self.match(tipo_token.TipoToken.NUM_FLOAT_CONST)
-        # Variável declarada com as expressões de __exp()
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
+        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
+                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
+            self.__cond()
+            self.match(tipo_token.TipoToken.OP_COND_TERNARIO_TRUE)
+            self.__exp()
+            self.match(tipo_token.TipoToken.DELIM_DOIS_PONTOS)
+            self.__exp()
+            self.__exp_rec()
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST:
+            self.match(tipo_token.TipoToken.NUM_INT_CONST)
+            self.__exp_rec()
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST:
+            self.match(tipo_token.TipoToken.NUM_FLOAT_CONST)
+            self.__exp_rec()
+
+        # ID de Var.
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
+                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST or \
+                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST or \
+                self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
+                self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW or \
+                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
             self.__var()
+            self.__exp_rec()
 
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES:
             self.match(tipo_token.TipoToken.DELIM_ABRE_PARENTESES)
             self.__exp()
             self.match(tipo_token.TipoToken.DELIM_FECHA_PARENTESES)
+            self.__exp_rec()
 
-        # Chamada de função
+        # Call de função
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID:
             self.__call()
+            self.__exp_rec()
 
-        # Conversão de tipo - Pegando o conjunto First de __exp()
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
+        # exp NEW
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
             self.__exp()
             self.match(tipo_token.TipoToken.PAL_CHAVE_AS)
             self.__type()
+            self.__exp_rec()
 
-        # Operador new
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW:
             self.match(tipo_token.TipoToken.PAL_CHAVE_NEW)
             self.__type()
             self.__new2()
+            self.__exp_rec()
 
-        # Subtração
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO:
             self.match(tipo_token.TipoToken.OP_ARIT_SUBTRACAO)
             self.__exp()
+            self.__exp_rec()
 
-        # Operação de soma
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
-            self.__exp()
+    def __exp_rec(self):
+        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SOMA:
             self.match(tipo_token.TipoToken.OP_ARIT_SOMA)
             self.__exp()
-
-
-        # Operação de subtração
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
-            self.__exp()
+            self.__exp_rec()
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO:
             self.match(tipo_token.TipoToken.OP_ARIT_SUBTRACAO)
             self.__exp()
+            self.__exp_rec()
 
-        # Operação de multiplicação
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
-            self.__exp()
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_MULTIPLICACAO:
             self.match(tipo_token.TipoToken.OP_ARIT_MULTIPLICACAO)
             self.__exp()
+            self.__exp_rec()
 
-        # Operação de divisão
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
-            self.__exp()
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_DIVISAO:
             self.match(tipo_token.TipoToken.OP_ARIT_DIVISAO)
             self.__exp()
-
-        # If-Ternário
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
-            self.__cond()
-            self.match(tipo_token.TipoToken.OP_COND_TERNARIO_TRUE)
-            self.__exp()
-            self.match(tipo_token.TipoToken.OP_COND_TERNARIO_FALSE)
-            self.__exp()
+            self.__exp_rec()
 
         else:
-            tokens = list()
-            tokens.append("TOKENS DE EXPRESSÕES ALGÉBRICAS E BOOLEANAS")
+            # VAZIO
+            pass
 
-            self.erro_sintatico(tokens)
 
     def __new2(self):
         if self.look_ahead(1).tipo_token == tipo_token.TipoToken.ARRAY_ABRE_COLCHETES:
@@ -493,7 +487,6 @@ class Parser:
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
             self.__exp()
             self.__exp_esq()
-            self.__cond_rec()
 
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
             self.match(tipo_token.TipoToken.OP_BOOL_NOT)
@@ -509,28 +502,15 @@ class Parser:
     def __cond_rec(self):
         if self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_AND or \
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_OR:
-            self.__cond2()
+            self.__cond()
             self.__cond_rec()
         else:
-            tokens = list()
+            """tokens = list()
             tokens.append("TOKENS DE OPERAÇÕES BOOLEANAS")
 
-            self.erro_sintatico(tokens)
-
-    def __cond2(self):
-        if self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_AND:
-            self.match(tipo_token.TipoToken.OP_BOOL_AND)
-            self.__cond()
-
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_OR:
-            self.match(tipo_token.TipoToken.OP_BOOL_OR)
-            self.__cond()
-
-        else:
-            tokens = list()
-            tokens.append("TOKENS DE EXPRESSÕES BOOLENAS PARA CONDIÇÕEES")
-
-            self.erro_sintatico(tokens)
+            self.erro_sintatico(tokens)"""
+            # VAZIO
+            pass
 
 
 
@@ -568,7 +548,6 @@ class Parser:
         self.match(tipo_token.TipoToken.ID)
         self.match(tipo_token.TipoToken.DELIM_ABRE_PARENTESES)
         self.__explist()
-        self.match(tipo_token.TipoToken.DELIM_FECHA_PARENTESES)
 
     def __explist(self):
         if self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
@@ -582,6 +561,9 @@ class Parser:
                 self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
             self.__exp()
             self.__explist2()
+            self.match(tipo_token.TipoToken.DELIM_FECHA_PARENTESES)
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_FECHA_PARENTESES:
+            self.match(tipo_token.TipoToken.DELIM_FECHA_PARENTESES)
         else:
             tokens = list()
             tokens.append("TOKENS PARA PARAMETROS NA CHAMADA DE UMA FUNÇÃO")
@@ -595,7 +577,9 @@ class Parser:
             self.__exp()
             self.__explist2()
         else:
-            tokens = list()
+            """tokens = list()
             tokens.append("TOKENS PARA LISTA PARAMETROS NA CHAMADA DE UMA FUNÇÃO - PART 2")
 
-            self.erro_sintatico(tokens)
+            self.erro_sintatico(tokens)"""
+            # VAZIO
+            pass

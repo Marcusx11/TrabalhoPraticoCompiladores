@@ -1,16 +1,15 @@
 
-# AAAA
+var a1 : int;
+var b2 : float;
+var c3 : float;
+
 function main(): int {
-    var1: int;
-    b2: float;
+    a1 = 2;
+    b2 = 3;
 
-    c3: float;
+    c3 = a1 + b2;
 
-    c3 = 1 == 2 ? 20 : 10;
-    @ a1;
-    a1 = [a1, b2, c3];
-    a2.megaman();
-    if (aaa = aaa) {}
+    @ c3;
 
     return 1;
 }
