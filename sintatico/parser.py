@@ -408,18 +408,6 @@ class Parser:
             self.__call()
             self.__exp_rec()
 
-        # exp NEW
-        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.DELIM_ABRE_PARENTESES or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_INT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.NUM_FLOAT_CONST or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.ID or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_SUBTRACAO or \
-                self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_BOOL_NOT:
-            self.__exp()
-            self.match(tipo_token.TipoToken.PAL_CHAVE_AS)
-            self.__type()
-            self.__exp_rec()
 
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_NEW:
             self.match(tipo_token.TipoToken.PAL_CHAVE_NEW)
@@ -450,6 +438,11 @@ class Parser:
         elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.OP_ARIT_DIVISAO:
             self.match(tipo_token.TipoToken.OP_ARIT_DIVISAO)
             self.__exp()
+            self.__exp_rec()
+
+        elif self.look_ahead(1).tipo_token == tipo_token.TipoToken.PAL_CHAVE_AS:
+            self.match(tipo_token.TipoToken.PAL_CHAVE_AS)
+            self.__type()
             self.__exp_rec()
 
         else:

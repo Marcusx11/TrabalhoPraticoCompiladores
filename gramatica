@@ -1,80 +1,56 @@
-program : definition program | EOF
+program :  definition program | vazio
 
 definition : def-variable | def-function | def-type
 
 def-variable : VAR ID ':' type ';'
 
-type : ID | int | float
+type : ID
 
-def-type : TYPE ID '=' typedesc ';'
+def-type : TYPE ID '=' typedesc ;
 
-typedesc : ID | '[' typedesc ']' | '{' field2 '}'
+typedesc : ID | '[' typedesc ']' | '{' { field } '}'
 
-field2 : field field2 | vazio
+field : ID ':' type ';' ;
 
-field : ID ':' type ';'
+def-function : FUNCTION ID '(' parameters ')' [':' type] block
 
-def-function : FUNCTION ID '(' parameters type2 block
-
-type2 : ':' type | vazio
-
-parameters : parameter parameters2 ')' | ')'
-
-parameters2 : ',' parameter parameters2 | vazio
+parameters : [ parameter { ',' parameter } ]
 
 parameter : ID ':' type
 
-block : '{' def-variable2 statement2 '}'
+block : '{' { def-variable } { statement } '}'
 
-def-variable2 : def_variable def-variable2 | vazio
-
-statement2 : statement statement2 | vazio
-
-statement : IF cond block else-cond
-          | WHILE cond block
+statement : IF exp block [ ELSE block ]
+          | WHILE exp block
           | var '=' exp ';'
-          | RETURN return-exp
+          | RETURN [ exp ] ';'
           | call ';'
           | '@' exp ';'
           | block
 
-else-cond : ELSE block | vazio
-
-return-exp : exp ';' | ';'
-
 var : ID | exp '[' exp ']' | exp '.' ID
 
-exp : cond '?' exp ':' exp exp-rec
-    | NUMERAL exp-rec
-    | var exp-rec
-    | '(' exp ')' exp-rec
-    | call exp-rec
-    | exp AS type exp-rec
-    | NEW type new-2 exp-rec
-    | '-' exp exp-rec
+exp : NUMERAL
+    | var
+    | '(' exp ')'
+    | call
+    | exp AS type
+    | NEW type [ '[' exp ']' ]
+    | '-' exp
+    | exp '+' exp
+    | exp '-' exp
+    | exp '*' exp
+    | exp '/' exp
+    | exp '==' exp
+    | exp '~=' exp
+    | exp '<=' exp
+    | exp '>=' exp
+    | exp '<' exp
+    | exp '>' exp
+    | '!' exp
+    | exp '&&' exp
+    | exp '||' exp
 
-exp-rec : '+' exp exp-rec
-    | '-' exp exp-rec
-    | '*' exp exp-rec
-    | '/' exp exp-rec
-    | vazio
+call : ID '(' explist ')'
 
-new-2 : '[' exp ']' | vazio
-
-cond : '(' cond ')' cond-rec
-	| exp exp-cond
-	| '!' cond cond-rec
-
-exp-esq : '==' exp cond-rec | '~=' exp cond-rec | '<=' exp cond-rec
-	        | '>=' exp cond-rec | '<' exp cond-rec | '>' exp cond-rec
-
-cond-rec : '&&' cond cond-rec
-    | '||' cond cond-rec
-    | vazio
-
-
-call : ID '(' explist
-
-explist : exp explist2 ')' | ')'
-
-explist2 : ',' exp explist2 | vazio
+explist : [ exp { ',' exp } ]

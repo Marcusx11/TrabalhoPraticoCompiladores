@@ -1,0 +1,9 @@
+
+# Método que retorna a soma de dois números inteiros
+function soma(int a, int b): int {
+    return a + b;
+}
+
+function main(): int {
+    var sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss: int;
+}

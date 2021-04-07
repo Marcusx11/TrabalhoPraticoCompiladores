@@ -2,7 +2,7 @@ from .token import Token
 from .tipo_token import TipoToken
 
 # Constante do tamanho do Buffer
-TAM_BUFFER = 20
+TAM_BUFFER = 32
 
 
 class AnalisadorLexico:
@@ -19,7 +19,8 @@ class AnalisadorLexico:
         self.inicio_lexema = 0
         self.lexema = ""  # Lexema completo reconhecido
 
-        # Abrindo-se o arquivo programa de entrada
+
+        # Abrindo-se o arquivo programa1 de entrada
         try:
             self.f = open(file_path)
         except FileNotFoundError:
@@ -30,7 +31,7 @@ class AnalisadorLexico:
             print("Não foi possível ler o arquivo")
 
 
-    # Inicializa o Buffer da esquerda com os caracteres do programa de entrada
+    # Inicializa o Buffer da esquerda com os caracteres do programa1 de entrada
     def inicializa_buffer(self):
         self.buffer_atual = 2
         self.inicio_lexema = 0
@@ -157,6 +158,18 @@ class AnalisadorLexico:
             self.zerar_ponteiro()
         else:
             self.confirmar_lexema()
+            if len(proximo.lexema) <= 32:
+                return proximo
+            else:
+                return Token(TipoToken.TOKEN_INV, "")
+
+        # Tentando achar uma constante numérica em hexadecimal
+        proximo = self.get_token_numero_hexadecimal()
+
+        if proximo is None:
+            self.zerar_ponteiro()
+        else:
+            self.confirmar_lexema()
             return proximo
 
         # Tentando achar uma constante numérica
@@ -259,7 +272,8 @@ class AnalisadorLexico:
 
         print("Erro léxico!")
 
-
+        # Lendo próximo caracter para prosseguir na leitura do arquivo de texto
+        self.incrementar_ponteiro()
         return Token(TipoToken.TOKEN_INV, "")
 
     def to_string(self):
@@ -341,7 +355,7 @@ class AnalisadorLexico:
         char_lido = self.ler_proximo_caractere()
 
         if char_lido == "@":
-            return Token(TipoToken.DELIM_ATRIBUICAO, self.get_lexema())
+            return Token(TipoToken.OP_IMPRIME_VALOR, self.get_lexema())
         else:
             return None
 
@@ -434,6 +448,32 @@ class AnalisadorLexico:
             return None
 
 
+    def get_token_numero_hexadecimal(self) -> Token or None:
+        estado = 1
+
+        letras_possiveis = ["A", "B", "C", "D", "E", "F"]
+
+        while True:
+            c = self.ler_proximo_caractere()
+            if estado == 1:
+                if c == '0':
+                    estado = 2
+                else:
+                    return None
+
+            elif estado == 2:
+                if c == 'x':
+                    estado = 3
+                else:
+                    return None
+
+            elif estado == 3:
+                if not c.isdigit() and not (c.isalpha() and c in letras_possiveis):
+                    self.retroceder_ponteiro()
+                    return Token(TipoToken.NUM_HEXADECIMAL, self.get_lexema())
+
+
+
     def get_token_numero(self) -> Token or None:
         estado = 1
 
@@ -475,9 +515,10 @@ class AnalisadorLexico:
                     return None
 
             elif estado == 2:
-                if not c.isalnum() and len(self.lexema) <= 32:
+                if not c.isalnum():
                     self.retroceder_ponteiro()
                     return Token(TipoToken.ID, self.get_lexema())
+
 
 
     def pular_espacos_e_comentarios(self) -> None:
@@ -517,29 +558,71 @@ class AnalisadorLexico:
                 lexema = self.get_lexema()
 
                 if lexema == "as":
-                    return Token(TipoToken.PAL_CHAVE_AS, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_AS, lexema)
                 elif lexema == "else":
-                    return Token(TipoToken.PAL_CHAVE_ELSE, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_ELSE, lexema)
+                    elif c == "{":
+                        self.retroceder_ponteiro()
+                        return Token(TipoToken.PAL_CHAVE_ELSE, lexema)
                 elif lexema == "function":
-                    return Token(TipoToken.PAL_CHAVE_FUNCTION, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_FUNCTION, lexema)
                 elif lexema == "if":
-                    return Token(TipoToken.PAL_CHAVE_IF, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_IF, lexema)
+                    elif c == "(":
+                        self.retroceder_ponteiro()
+                        return Token(TipoToken.PAL_CHAVE_IF, lexema)
                 elif lexema == "new":
-                    return Token(TipoToken.PAL_CHAVE_NEW, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_NEW, lexema)
                 elif lexema == "return":
-                    return Token(TipoToken.PAL_CHAVE_RETURN, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_RETURN, lexema)
                 elif lexema == "type":
-                    return Token(TipoToken.PAL_CHAVE_TYPE, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_TYPE, lexema)
                 elif lexema == "var":
-                    return Token(TipoToken.PAL_CHAVE_VAR, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_VAR, lexema)
                 elif lexema == "while":
-                    return Token(TipoToken.PAL_CHAVE_WHILE, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_WHILE, lexema)
+                    elif c == "(":
+                        self.retroceder_ponteiro()
+                        return Token(TipoToken.PAL_CHAVE_WHILE, lexema)
                 elif lexema == "int":
-                    return Token(TipoToken.PAL_CHAVE_TIPO_INT, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_TIPO_INT, lexema)
+                    elif c == "{":
+                        self.retroceder_ponteiro()
+                        return Token(TipoToken.PAL_CHAVE_WHILE, lexema)
                 elif lexema == "float":
-                    return Token(TipoToken.PAL_CHAVE_TIPO_FLOAT, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_TIPO_FLOAT, lexema)
+                    elif c == "{":
+                        self.retroceder_ponteiro()
+                        return Token(TipoToken.PAL_CHAVE_WHILE, lexema)
                 elif lexema == "record":
-                    return Token(TipoToken.PAL_CHAVE_TIPO_RECORD, lexema)
+                    c = self.ler_proximo_caractere()
+                    if c.isspace() or c == ' ':
+                        return Token(TipoToken.PAL_CHAVE_TIPO_RECORD, lexema)
+                    elif c == "{":
+                        self.retroceder_ponteiro()
+                        return Token(TipoToken.PAL_CHAVE_WHILE, lexema)
                 else:
                     return None
 

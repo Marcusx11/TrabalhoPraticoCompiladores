@@ -1,0 +1,27 @@
+
+var a1 : int;
+var b2 : float;
+var c3 : float;
+
+
+function main(): int {
+    a1 = 2;
+    b2 = 3;
+
+    var Aoba = 0xFFFF;
+
+    c3 = b2 + 22;
+
+    if (Aoba > a2) {
+        var i = 0;
+
+        while (i < 10) {
+            i = i + 1;
+        }
+
+    } else {
+        @ Aoba;
+    }
+
+    return 1;
+}

@@ -73,6 +73,9 @@ class TipoToken(Enum):
     # Token indicando fim de arquivo
     FIM_DE_ARQUIVO = 43
 
+    # Token indicando número em hexadecimal
+    NUM_HEXADECIMAL = 44
+
     # Token inválido
-    TOKEN_INV = 44
+    TOKEN_INV = 45
 

@@ -5,16 +5,13 @@
 from lexico import token
 from lexico import tipo_token, analisador_lexico
 from sintatico import parser
+from sys import argv
 
 
 
 if __name__ == '__main__':
-    lexico = analisador_lexico.AnalisadorLexico("programa")
+    lexico = analisador_lexico.AnalisadorLexico(argv[1])
     lexico.inicializa_buffer()
-
-    par = parser.Parser(lexico)
-
-    par.program()
 
     while True:
         t = lexico.proximo_token()
@@ -26,4 +23,3 @@ if __name__ == '__main__':
                 break
 
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
