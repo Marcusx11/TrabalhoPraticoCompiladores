@@ -6,4 +6,9 @@ function soma(int a, int b): int {
 
 function main(): int {
     var sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss: int;
+    var aOba: float;
+    var var1: int;
+    var aoba: float;
+
+    return 0;
 }

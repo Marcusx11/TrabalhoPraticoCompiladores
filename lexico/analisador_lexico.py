@@ -9,8 +9,8 @@ class AnalisadorLexico:
 
     def __init__(self, file_path):
         self.file_path = file_path
-        self.token_list = list()
-        self.buffer_leitura = [""] * (TAM_BUFFER * 2)  # Buffer de tamanho 10
+
+        self.buffer_leitura = [""] * (TAM_BUFFER * 2)  # Buffer de tamanho 32
         self.pointer = 0
         # Variável de controle para evitar a reescrita do Buffer 2 vezes
         self.buffer_atual = 1
@@ -503,7 +503,6 @@ class AnalisadorLexico:
 
 
     def get_id(self) -> Token or None:
-        # TODO se necessário, implementar a tipagem da variável
         # Lembrar que em Monga, as variáveis válidas tem até 32 caracteres
         estado = 1
         while True:
@@ -608,21 +607,30 @@ class AnalisadorLexico:
                         return Token(TipoToken.PAL_CHAVE_TIPO_INT, lexema)
                     elif c == "{":
                         self.retroceder_ponteiro()
-                        return Token(TipoToken.PAL_CHAVE_WHILE, lexema)
+                        return Token(TipoToken.PAL_CHAVE_TIPO_INT, lexema)
+                    elif c == ";":
+                        self.retroceder_ponteiro()
+                        return Token(TipoToken.PAL_CHAVE_TIPO_INT, lexema)
                 elif lexema == "float":
                     c = self.ler_proximo_caractere()
                     if c.isspace() or c == ' ':
                         return Token(TipoToken.PAL_CHAVE_TIPO_FLOAT, lexema)
                     elif c == "{":
                         self.retroceder_ponteiro()
-                        return Token(TipoToken.PAL_CHAVE_WHILE, lexema)
+                        return Token(TipoToken.PAL_CHAVE_TIPO_FLOAT, lexema)
+                    elif c == ";":
+                        self.retroceder_ponteiro()
+                        return Token(TipoToken.PAL_CHAVE_TIPO_FLOAT, lexema)
                 elif lexema == "record":
                     c = self.ler_proximo_caractere()
                     if c.isspace() or c == ' ':
                         return Token(TipoToken.PAL_CHAVE_TIPO_RECORD, lexema)
                     elif c == "{":
                         self.retroceder_ponteiro()
-                        return Token(TipoToken.PAL_CHAVE_WHILE, lexema)
+                        return Token(TipoToken.PAL_CHAVE_TIPO_RECORD, lexema)
+                    elif c == ";":
+                        self.retroceder_ponteiro()
+                        return Token(TipoToken.PAL_CHAVE_TIPO_RECORD, lexema)
                 else:
                     return None
 

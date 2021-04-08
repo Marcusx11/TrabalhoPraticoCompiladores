@@ -1,0 +1,11 @@
+
+
+function main(): int {
+    var num: int = 0xFFFF;
+
+    var v2: int = 0x AFFF;
+
+    var v3: int = 0xAAGAG;
+
+    return 1;
+}

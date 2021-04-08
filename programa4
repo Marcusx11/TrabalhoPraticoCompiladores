@@ -1,0 +1,25 @@
+
+
+
+function main(): int {
+    var ifelse: int;
+    var while2: float;
+    while2 = 2;
+    var int2: int;
+
+    if (int2 > 0) {
+        var i: int;
+        i = 0;
+        while(i < 10) {
+            i = i + 1;
+            @ i;
+        }
+    }else{
+        @ while2;
+    }
+
+    var returnNome: int;
+    returnNome = while2;
+
+    return 0;
+}

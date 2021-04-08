@@ -54,7 +54,6 @@ class TipoToken(Enum):
     OP_MENOR = 33
     OP_MAIOR = 34
     OP_COND_TERNARIO_TRUE = 35
-    OP_COND_TERNARIO_FALSE = 41
 
     # Classes de Tokens para identificadores
     ID = 36
@@ -68,14 +67,14 @@ class TipoToken(Enum):
     ARRAY_FECHA_COLCHETES = 40
 
     # Operador para imprimir o valor de uma expressão
-    OP_IMPRIME_VALOR = 42
+    OP_IMPRIME_VALOR = 41
 
     # Token indicando fim de arquivo
-    FIM_DE_ARQUIVO = 43
+    FIM_DE_ARQUIVO = 42
 
     # Token indicando número em hexadecimal
-    NUM_HEXADECIMAL = 44
+    NUM_HEXADECIMAL = 43
 
     # Token inválido
-    TOKEN_INV = 45
+    TOKEN_INV = 44
 
